@@ -1,0 +1,4 @@
+*.pyc
+database.sqlite
+env
+*.swp
