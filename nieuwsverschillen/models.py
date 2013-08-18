@@ -5,6 +5,8 @@ from json_field import JSONField
 
 from datetime import timedelta
 
+from nieuwsverschillen.diff_match_patch import diff_match_patch
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -55,6 +57,12 @@ class ArticleVariant(models.Model):
 
     def content_equals(self, variant):
         return self.parsed_content == variant.parsed_content
+
+    def diff_to(self, variant):
+        dmp = diff_match_patch()
+        diff = dmp.diff_main(self.parsed_content, variant.parsed_content)
+
+        return diff
 
     article = models.ForeignKey(Article)
 
