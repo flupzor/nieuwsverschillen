@@ -1,5 +1,5 @@
 from baseparser import BaseParser
-from BeautifulSoup import BeautifulSoup, Tag, Comment
+from bs4 import BeautifulSoup, Tag, Comment
 
 
 class TelegraafParser(BaseParser):
@@ -9,8 +9,7 @@ class TelegraafParser(BaseParser):
     feeder_pat  = '^http://www.telegraaf.nl/\w+/\d+/'
 
     def _parse(self, html):
-        soup = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES,
-                             fromEncoding='utf-8')
+        soup = BeautifulSoup(html)
 
         self.meta = soup.findAll('meta')
 
@@ -18,7 +17,7 @@ class TelegraafParser(BaseParser):
         title = article.find('h1')
 
         self.title = ''
-        for i in title.childGenerator():
+        for i in title.children:
             # Skip comments
             if isinstance(i, Comment):
                 continue
@@ -32,8 +31,8 @@ class TelegraafParser(BaseParser):
 
         article_column = soup.find('div', id = 'artikelKolom')
 
-        self.body = ''
-        for i in article_column.childGenerator():
+        self.body = ""
+        for i in article_column.children:
             if not isinstance(i, Tag):
                 continue
             if not i.name == 'p':
