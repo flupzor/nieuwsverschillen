@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for variant in object.articlevariant_set.all %}
+  <div>
+  <a href="{{ object.url }}">Bron</a>
+  <h1>{{ variant.pk }}</h1>
+  <p>
+  {{ variant.parsed_content }}
+  </p>
+  </div>
+{% endfor %}
+
+{% for variant in cmp_list %}
+  <a href="{% url "article-diff" %}?r1={{variant.0.pk}}&r2={{variant.1.pk}}">Diff between {{ variant.0.pk }} and {{ variant.1.pk }}</a>
+{% endfor %}
+{% endblock %}

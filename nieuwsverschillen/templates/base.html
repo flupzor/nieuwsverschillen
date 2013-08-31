@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load bootstrap_toolkit %}
+<html lang="en">
+  <head>
+    {% bootstrap_stylesheet_tag %}
+    {% bootstrap_stylesheet_tag "responsive" %}
+<!--
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+-->
+
+
+    <title>Nieuwsverschillen</title>
+  </head>
+  <body>
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Nieuwsverschillen</h1>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-2">
+          <ul class="nav nav-list">
+            <li class="nav-header">Sites</li>
+            <li><a href="#">nu.nl</a></li>
+            <li><a href="#">nos.nl</a></li>
+            <li><a href="#">Telegraaf</a></li>
+            <li><a href="#">allle</a></li>
+            <li class="nav-header">Filters</li>
+            <li><a href="?has_variations=True">Has variations</a></li>
+          </ul>
+        </div>
+        <div class="col-md-10">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
