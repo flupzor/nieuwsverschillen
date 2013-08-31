@@ -1,6 +1,7 @@
 # Django settings for nieuwsverschillen project.
 
 import sys
+from os import path
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -122,13 +123,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
     'nieuwsverschillen',
     'json_field',
-    'django_extensions'
+    'django_extensions',
+    'bootstrap_toolkit',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -174,3 +174,11 @@ NIEUWSVERSCHILLEN_PARSERS = [
     'nieuwsverschillen.parsers.nosnl.NOSNLParser',
     'nieuwsverschillen.parsers.telegraaf.TelegraafParser',
 ]
+
+# Set PROJECT_ROOT to the dir of the current file
+PROJECT_ROOT = path.dirname(__file__)
+
+TEMPLATE_DIRS = (
+    path.join(PROJECT_ROOT, 'templates')
+)
+
