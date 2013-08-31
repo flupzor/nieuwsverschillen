@@ -26,6 +26,10 @@ class Article(models.Model):
     # http
     http_last_modified = models.TextField(blank=True, null=True)
 
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('article-detail', args=[str(self.id)])
+
     def __unicode__(self):
         return self.url
 
