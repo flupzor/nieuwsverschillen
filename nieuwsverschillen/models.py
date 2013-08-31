@@ -73,6 +73,7 @@ class ArticleVariant(models.Model):
     def diff_to(self, variant):
         dmp = diff_match_patch()
         diff = dmp.diff_main(self.parsed_content, variant.parsed_content)
+        dmp.diff_cleanupSemantic(diff)
 
         return diff
 
