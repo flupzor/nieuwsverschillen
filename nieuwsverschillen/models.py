@@ -26,6 +26,14 @@ class Article(models.Model):
     # http
     http_last_modified = models.TextField(blank=True, null=True)
 
+    @property
+    def title(self):
+        return self.articlevariant_set.all()[0].title
+
+    @property
+    def parsed_content(self):
+        return self.articlevariant_set.all()[0].parsed_content
+
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('article-detail', args=[str(self.id)])
@@ -74,5 +82,6 @@ class ArticleVariant(models.Model):
     http_content = models.TextField()
     http_headers = JSONField()
 
+    title = models.TextField()
     parsed_content = models.TextField()
 

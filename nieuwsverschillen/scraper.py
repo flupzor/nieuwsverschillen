@@ -90,6 +90,7 @@ class ArticleScraper(object):
         parser = parser_class(article.url, article_variant.http_content)
 
         article_variant.parsed_content = parser.body
+        article_variant.title = parser.title
 
         # Dispose of this article variant if an article variant with the same
         # content already exists.
