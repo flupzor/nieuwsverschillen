@@ -86,8 +86,8 @@ class ArticleScraper(object):
     def article_parser(self, article_variant):
         article = self.article
 
-        self.parser_class = parser_by_path(article.parser_path)
-        self.parser = parser_class(article.url, article_variant.http_content)
+        parser_class = parser_by_path(article.parser_path)
+        parser = parser_class(article.url, article_variant.http_content)
 
         article_variant.parsed_content = parser.body
 
