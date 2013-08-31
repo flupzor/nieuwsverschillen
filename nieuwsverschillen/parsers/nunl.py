@@ -26,8 +26,11 @@ class NuNLParser(BaseParser):
         content = soup.find('div', 'content')
 
         self.body = ''
+        self.body += soup.find('h2', 'summary').getText() + '\n\n'
 
-        for i in content.childGenerator():
+        article_body = content.find('div', 'main-articlebody')
+
+        for i in article_body.childGenerator():
             if not isinstance(i, Tag):
                 continue
             if not i.name == 'h2' and not i.name == 'p':
