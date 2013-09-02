@@ -7,14 +7,101 @@ from datetime import timedelta
 
 from nieuwsverschillen.diff_match_patch import diff_match_patch
 
+from nieuwsverschillen.management.commands.utils import load_parser, parser_by_path
+
+import requests
+
 import logging
 logger = logging.getLogger(__name__)
 
-class Article(models.Model):
+class Source(models.Model):
     url = models.CharField(max_length=255, blank=False, unique=True)
+    description = models.TextField(blank=True, null=True)
 
-    # Which parser should be used for this article.
+    # Which parser should be used for this site.
     parser_path = models.CharField(max_length=255)
+
+    @property
+    def parser_class(self):
+        return parser_by_path(self.parser_path)
+
+    def update_articles(self):
+        parser_class = self.parser_class
+
+        # Retrieve the index page.
+        response = requests.get(parser_class.feeder_base)
+        # XXX: verify content-type etc...
+
+        # Extract all the article urls from the index page.
+        url_list = parser_class.feed_urls(response.text)
+
+        for url in url_list:
+            logger.debug("Creating a Article object for: {0}".format(url))
+            # Look if we've tried to download it before.
+            article, created = Article.objects.get_or_create(url = url,
+                source=self)
+
+        # Update all articles
+        for article in Article.objects.all():
+            article.fetch()
+
+class Article(models.Model):
+    source = models.ForeignKey(Source)
+
+    def http_client(self):
+        req_headers = {}
+
+        article = self
+
+        if article.http_last_modified:
+            req_headers.update({
+                'If-Modified-Since': article.http_last_modified
+            })
+
+        debug_msg = "GET \"{0}\" last modified: \"{1}\"".format(article.url,
+            article.http_last_modified)
+        logger.debug(debug_msg)
+
+        response = requests.get(article.url, headers=req_headers)
+
+        if response.status_code == requests.codes.not_modified:
+            # update statistics
+            article.nr_requests += 1
+            article.save()
+
+            logger.debug("Not modified")
+
+            return None
+
+        # update the statistics
+        article.nr_requests += 1
+        article.nr_downloads += 1
+        article.save()
+
+        http_headers = {}
+
+        if 'last-modified' in response.headers:
+            article.http_last_modified = response.headers['last-modified']
+            article.save()
+            logger.debug("Last modified: \"{0}\"".format(article.http_last_modified))
+        elif 'date' in response.headers:
+            article.http_last_modified = response.headers['date']
+            article.save()
+            logger.debug("Last modified: \"{0}\"".format(article.http_last_modified))
+
+        article_variant = ArticleVariant(article = article, http_content =
+            response.text, http_headers = dict(response.headers))
+
+        return article_variant
+
+
+    def fetch(self):
+        if self.should_be_updated():
+            article_variant = self.http_client()
+            if article_variant:
+                article_variant.parse()
+
+    url = models.CharField(max_length=255, blank=False, unique=True)
 
     # statistics
     nr_requests = models.IntegerField(default=0)
@@ -53,6 +140,8 @@ class Article(models.Model):
         if timezone.now() > self.seen_in_overview + timedelta(days=2):
             return False
 
+        # XXX: there should be an lower limit too. E.g. every 5 minutes.
+
         return True
 
 class ArticleVariant(models.Model):
@@ -62,20 +151,53 @@ class ArticleVariant(models.Model):
 
     def content_already_exists(self):
         for variant in self.article.articlevariant_set.all():
-            if variant != self and self.content_equals(variant):
+            if variant != self and self.compare(variant):
                 return True
 
         return False
 
-    def content_equals(self, variant):
-        return self.parsed_content == variant.parsed_content
+    def compare(self, variant):
+        """ Compare this variant to another. Return True if they are equal.
+        False otherwise. """
 
-    def diff_to(self, variant):
+        if self.article_title != variant.article_title:
+            return False
+
+        if self.article_content != variant.article_content:
+            return False
+
+        return True
+
+    def diff(self, variant):
+        """ Create a diff between this variant and another """
+
         dmp = diff_match_patch()
-        diff = dmp.diff_main(self.parsed_content, variant.parsed_content)
+        diff = dmp.diff_main(self.article_content, variant.article_content)
         dmp.diff_cleanupSemantic(diff)
 
         return diff
+
+    def parse(self):
+        article = self.article
+        article_variant = self
+
+        parser_class = parser_by_path(article.source.parser_path)
+        parser = parser_class(article.url, article_variant.http_content)
+
+        article_variant.article_content = parser.body
+        article_variant.article_title = parser.title
+
+        # Dispose of this article variant if an article variant with the
+        # same content already exists.
+        if article_variant.content_already_exists():
+            # XXX: should only be deleted if already exists.
+            article_variant.delete()
+            logger.debug("SKIPPING SAME CONTENT")
+            return
+
+        logger.debug("NEW ARTICLE FOUND")
+
+        article_variant.save()
 
     article = models.ForeignKey(Article)
 

@@ -24,8 +24,6 @@ class ArticleList(ListView):
         return queryset.all()
 
     def get_context_data(self, **kwargs):
-        from nieuwsverschillen.scraper import ArticleScraper
-
         context = super(ArticleList, self).get_context_data(**kwargs)
 
         # Copied this bit from django-paging.
@@ -98,14 +96,11 @@ class ArticleParse(DetailView):
     model = Article
 
     def get_context_data(self, **kwargs):
-        from nieuwsverschillen.scraper import ArticleScraper
-
         context = super(ArticleParse, self).get_context_data(**kwargs)
 
         obj = context['object']
 
-        scraper = ArticleScraper(obj)
         for variant in obj.articlevariant_set.all():
-            scraper.article_parser(variant)
+            variant.parse()
 
         return context
