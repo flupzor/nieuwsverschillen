@@ -27,12 +27,12 @@ class Article(models.Model):
     http_last_modified = models.TextField(blank=True, null=True)
 
     @property
-    def title(self):
-        return self.articlevariant_set.all()[0].title
+    def article_title(self):
+        return self.articlevariant_set.all()[0].article_title
 
     @property
-    def parsed_content(self):
-        return self.articlevariant_set.all()[0].parsed_content
+    def article_content(self):
+        return self.articlevariant_set.all()[0].article_content
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
@@ -79,10 +79,12 @@ class ArticleVariant(models.Model):
 
     article = models.ForeignKey(Article)
 
-    download_date = models.DateTimeField(auto_now_add=True)
+    # HTTP data which shouldn't be modified after they're created.
+    http_download_date = models.DateTimeField(auto_now_add=True)
     http_content = models.TextField()
     http_headers = JSONField()
 
-    title = models.TextField()
-    parsed_content = models.TextField()
+    # The article which is parsed from the HTTP data.
+    article_title = models.TextField()
+    article_content = models.TextField()
 
