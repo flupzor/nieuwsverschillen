@@ -48,6 +48,18 @@ class Source(models.Model):
 class Article(models.Model):
     source = models.ForeignKey(Source)
 
+    url = models.CharField(max_length=255, blank=False, unique=True)
+
+    # statistics
+    nr_requests = models.IntegerField(default=0)
+    nr_downloads = models.IntegerField(default=0)
+    last_download_date = models.DateTimeField(auto_now_add=True)
+
+    seen_in_overview = models.DateTimeField(auto_now_add=True)
+
+    # http
+    http_last_modified = models.TextField(blank=True, null=True)
+
     def http_client(self):
         req_headers = {}
 
@@ -101,18 +113,6 @@ class Article(models.Model):
             if article_variant:
                 article_variant.parse()
 
-    url = models.CharField(max_length=255, blank=False, unique=True)
-
-    # statistics
-    nr_requests = models.IntegerField(default=0)
-    nr_downloads = models.IntegerField(default=0)
-    last_download_date = models.DateTimeField(auto_now_add=True)
-
-    seen_in_overview = models.DateTimeField(auto_now_add=True)
-
-    # http
-    http_last_modified = models.TextField(blank=True, null=True)
-
     @property
     def article_title(self):
         return self.articlevariant_set.all()[0].article_title
@@ -148,6 +148,17 @@ class ArticleVariant(models.Model):
     """ Model with the raw article data. This data can be used to
     regenerate the other database models when the parsing code gets
     updated """
+
+    article = models.ForeignKey(Article)
+
+    # HTTP data which shouldn't be modified after they're created.
+    http_download_date = models.DateTimeField(auto_now_add=True)
+    http_content = models.TextField()
+    http_headers = JSONField()
+
+    # The article which is parsed from the HTTP data.
+    article_title = models.TextField()
+    article_content = models.TextField()
 
     def content_already_exists(self):
         for variant in self.article.articlevariant_set.all():
@@ -198,15 +209,4 @@ class ArticleVariant(models.Model):
         logger.debug("NEW ARTICLE FOUND")
 
         article_variant.save()
-
-    article = models.ForeignKey(Article)
-
-    # HTTP data which shouldn't be modified after they're created.
-    http_download_date = models.DateTimeField(auto_now_add=True)
-    http_content = models.TextField()
-    http_headers = JSONField()
-
-    # The article which is parsed from the HTTP data.
-    article_title = models.TextField()
-    article_content = models.TextField()
 
