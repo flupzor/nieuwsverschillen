@@ -190,23 +190,22 @@ class ArticleVariant(models.Model):
 
     def parse(self):
         article = self.article
-        article_variant = self
 
         parser_class = parser_by_path(article.source.parser_path)
-        parser = parser_class(article.url, article_variant.http_content)
+        parser = parser_class(article.url, self.http_content)
 
-        article_variant.article_content = parser.body
-        article_variant.article_title = parser.title
+        self.article_content = parser.body
+        self.article_title = parser.title
 
         # Dispose of this article variant if an article variant with the
         # same content already exists.
-        if article_variant.content_already_exists():
+        if self.content_already_exists():
             # XXX: should only be deleted if already exists.
-            article_variant.delete()
+            self.delete()
             logger.debug("SKIPPING SAME CONTENT")
             return
 
         logger.debug("NEW ARTICLE FOUND")
 
-        article_variant.save()
+        self.save()
 
