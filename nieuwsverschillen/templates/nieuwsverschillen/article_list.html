@@ -6,17 +6,17 @@
 <div class="row">
   <div class="col-md-6">
 {% for object in object_list|slice:":3" %}
-    <h2>{{ object.title }}</h2>
+    <h2>{{ object.article_title }}</h2>
     <p>{{ object.articlevariant__count }} varianten</p>
-    <p>{{ object.parsed_content|truncatewords:30 }}</p>
+    <p>{{ object.article_content|truncatewords:30 }}</p>
     <a href="{{ object.get_absolute_url }}">Lees meer</a>
 {% endfor %}
   </div>
   <div class="col-md-6">
-{% for object in object_list|slice:":3" %}
-    <h2>{{ object.title }}</h2>
+{% for object in object_list|slice:"3:" %}
+    <h2>{{ object.article_title }}</h2>
     <p>{{ object.articlevariant__count }} varianten</p>
-    <p>{{ object.parsed_content|truncatewords:30 }}</p>
+    <p>{{ object.article_content|truncatewords:30 }}</p>
     <a href="{{ object.get_absolute_url }}">Lees meer</a>
 {% endfor %}
   </div>

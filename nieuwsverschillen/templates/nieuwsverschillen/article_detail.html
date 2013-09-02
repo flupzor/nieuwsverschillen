@@ -5,9 +5,9 @@
 {% for variant in object.articlevariant_set.all %}
   <div>
   <a href="{{ object.url }}">Bron</a>
-  <h1>{{ variant.pk }}</h1>
+  <h1>{{ variant.article_title }}</h1>
   <p>
-  {{ variant.parsed_content }}
+  {{ variant.article_content }}
   </p>
   </div>
 {% endfor %}

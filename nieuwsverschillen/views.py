@@ -88,7 +88,7 @@ class DiffView(TemplateView):
         r1_obj = get_object_or_404(ArticleVariant, pk=r1)
         r2_obj = get_object_or_404(ArticleVariant, pk=r2)
 
-        context['diff'] = self.diff_prettyHtml(r1_obj.diff_to(r2_obj))
+        context['diff'] = self.diff_prettyHtml(r1_obj.diff(r2_obj))
 
         return context
 
