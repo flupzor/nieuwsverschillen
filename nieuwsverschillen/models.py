@@ -49,8 +49,8 @@ class Source(models.Model):
             article, created = Article.objects.get_or_create(url = url,
                 source=self)
 
-        # Update all articles
-        for article in Article.objects.all():
+        # Update all articles which have this source.
+        for article in self.article_set.all():
             article.fetch()
 
     def get_absolute_url(self):
