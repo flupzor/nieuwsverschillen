@@ -10,6 +10,8 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^diff/$', DiffView.as_view(), name='article-diff'),
+    url(r'^s/$', ArticleList.as_view(),
+        name='article-all'),
     url(r'^s/(?P<source_slug>[\w-]+)/$', ArticleList.as_view(),
         name='article-list'),
     url(r'^s/(?P<source_slug>[\w-]+)/(?P<slug>[\w-]+)/$',
