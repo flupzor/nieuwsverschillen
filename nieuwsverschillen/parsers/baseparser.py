@@ -8,23 +8,7 @@ import unicodedata
 import logging
 logger = logging.getLogger(__name__)
 
-# Begin hot patch for https://bugs.launchpad.net/bugs/788986
-# Ick.
-from BeautifulSoup import BeautifulSoup
-def bs_fixed_getText(self, separator=u""):
-    bsmod = sys.modules[BeautifulSoup.__module__]
-    if not len(self.contents):
-        return u""
-    stopNode = self._lastRecursiveChild().next
-    strings = []
-    current = self.contents[0]
-    while current is not stopNode:
-        if isinstance(current, bsmod.NavigableString):
-            strings.append(current)
-        current = current.next
-    return separator.join(strings)
-sys.modules[BeautifulSoup.__module__].Tag.getText = bs_fixed_getText
-# End fix
+from bs4 import BeautifulSoup
 
 def strip_whitespace(text):
     lines = text.split('\n')
