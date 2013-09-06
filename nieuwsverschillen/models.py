@@ -227,8 +227,8 @@ class ArticleVariant(models.Model):
         # Dispose of this article variant if an article variant with the
         # same content already exists.
         if self.content_already_exists():
-            # XXX: should only be deleted if already exists.
-            self.delete()
+            if self.pk:
+                self.delete()
             logger.debug("SKIPPING SAME CONTENT")
             return
 
