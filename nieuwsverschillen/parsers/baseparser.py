@@ -26,8 +26,6 @@ class BaseParser(object):
     feeder_base = None  # Look for links on this page
     feeder_pat = None   # matching this regular expression
 
-    feeder_bs = BeautifulSoup #use this version of beautifulsoup for feed
-
     def __init__(self, url, html):
         self.url = url
         self.html = html
@@ -42,7 +40,7 @@ class BaseParser(object):
 
     @classmethod
     def feed_urls(cls, html):
-        soup = cls.feeder_bs(html)
+        soup = BeautifulSoup(html)
 
         # "or ''" to make None into str
         urls = [a.get('href') or '' for a in soup.findAll('a')]
