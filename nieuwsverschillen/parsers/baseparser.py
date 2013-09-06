@@ -1,28 +1,12 @@
 import cookielib
-import logging
 import re
 import socket
 import sys
 import time
-import urllib2
 import unicodedata
 
-# Define a logger
-
-# This formatter is like the default but uses a period rather than a comma
-# to separate the milliseconds
-class MyFormatter(logging.Formatter):
-    def formatTime(self, record, datefmt=None):
-        return logging.Formatter.formatTime(self, record,
-                                            datefmt).replace(',', '.')
-
+import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = MyFormatter('%(asctime)s:%(levelname)s:%(message)s')
-ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
-ch.setFormatter(formatter)
-logger.addHandler(ch)
 
 # Begin hot patch for https://bugs.launchpad.net/bugs/788986
 # Ick.
