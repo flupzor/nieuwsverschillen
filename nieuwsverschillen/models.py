@@ -141,10 +141,18 @@ class Article(models.Model):
 
     @property
     def article_title(self):
-        return self.articlevariant_set.all()[0].article_title
+        if self.articlevariant_set.count() == 0:
+            title = "Untitled article: {0}".format(self.pk)
+        else:
+            title = self.articlevariant_set.all()[0].article_title
+
+        return title
 
     @property
     def article_content(self):
+        if self.articlevariant_set.count() == 0:
+            return None
+
         return self.articlevariant_set.all()[0].article_content
 
     def get_absolute_url(self):
