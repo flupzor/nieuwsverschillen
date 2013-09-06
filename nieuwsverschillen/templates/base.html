@@ -17,10 +17,10 @@
         <div class="col-md-2">
           <ul class="nav nav-list">
             <li class="nav-header">Sites</li>
-            <li><a href="#">nu.nl</a></li>
-            <li><a href="#">nos.nl</a></li>
-            <li><a href="#">Telegraaf</a></li>
-            <li><a href="#">allle</a></li>
+            {% for site in source_list %}
+            <li><a href="{{ site.get_absolute_url }}">{{ site.url }}</a></li>
+            {% endfor %}
+            <li><a href="#">alle</a></li>
             <li class="nav-header">Filters</li>
             <li><a href="?has_variations=True">Has variations</a></li>
           </ul>
