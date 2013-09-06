@@ -178,6 +178,8 @@ class ArticleVariant(models.Model):
 
     article = models.ForeignKey(Article)
 
+    similar_versions = models.ManyToManyField("self")
+
     # HTTP data which shouldn't be modified after they're created.
     http_download_date = models.DateTimeField(auto_now_add=True)
     http_content = models.TextField()
@@ -235,4 +237,32 @@ class ArticleVariant(models.Model):
         logger.debug("NEW ARTICLE FOUND")
 
         self.save()
+
+    def is_similar(self, new):
+        """ Test if the current article version is similar to the given
+        article version """
+
+        dmp = diff_match_patch()
+        diff = dmp.diff_main(self.article_content, new.article_content)
+        dmp.diff_cleanupSemantic(diff)
+
+        equalities = 0
+        insertions = 0
+        deletions = 0
+        for (op, data) in diff:
+            if op == dmp.DIFF_INSERT:
+                insertions += len(data)
+            elif op == dmp.DIFF_DELETE:
+                deletions += len(data)
+            elif op == dmp.DIFF_EQUAL:
+                # Anything smaller than 20 characters isn't copied.
+                if len(data) > 20:
+                    equalities += len(data)
+                    logger.debug("Similar: " + data)
+
+        if equalities > 50:
+            return True
+
+        return False
+
 
