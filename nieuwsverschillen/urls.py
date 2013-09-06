@@ -10,8 +10,9 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^diff/$', DiffView.as_view(), name='article-diff'),
-    url(r'^article/$', ArticleList.as_view(), name='article-list'),
-    url(r'^article/(?P<pk>[0-9]+)/$', ArticleDetail.as_view(), name='article-detail'),
+    url(r'^s/(?P<source_slug>[\w-]+)/$', ArticleList.as_view(), name='article-list'),
+    url(r'^s/(?P<source_slug>[\w-]+)/(?P<slug>[\w-]+)/$', ArticleDetail.as_view(), name='article-detail'),
 
+    # XXX: debug view.
     url(r'^article-parse/(?P<pk>[0-9]+)/$', ArticleParse.as_view(), name='article-parse'),
 )

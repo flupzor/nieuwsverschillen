@@ -2,7 +2,7 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 
-from nieuwsverschillen.models import Article, ArticleVariant
+from nieuwsverschillen.models import Article, ArticleVariant, Source
 
 from nieuwsverschillen.diff_match_patch import diff_match_patch
 
@@ -16,6 +16,15 @@ class ArticleList(ListView):
 
         queryset = manager.annotate(Count('articlevariant'))
 
+        # Filter by source, if supplied
+        source_slug = self.kwargs.get('source_slug', None)
+        if source_slug == "all":
+            pass
+        elif source_slug:
+            source = Source.objects.get(slug=source_slug)
+            queryset = queryset.filter(source=source)
+
+        # Only show articles with variations.
         if has_variations:
             queryset = queryset.filter(articlevariant__count__gt = 1)
         else:
@@ -92,6 +101,7 @@ class DiffView(TemplateView):
 
         return context
 
+# XXX: a debug view.
 class ArticleParse(DetailView):
     model = Article
 
