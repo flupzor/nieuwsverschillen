@@ -1,7 +1,5 @@
 from baseparser import BaseParser
-from BeautifulSoup import BeautifulSoup, Tag
-
-
+from bs4 import BeautifulSoup, Tag
 
 class NOSNLParser(BaseParser):
     domains = ['www.nos.nl']
@@ -10,8 +8,7 @@ class NOSNLParser(BaseParser):
     feeder_pat  = '^http://www.nos.nl/artikel/'
 
     def _parse(self, html):
-        soup = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES,
-                             fromEncoding='utf-8')
+        soup = BeautifulSoup(html)
 
         self.meta = soup.findAll('meta')
 
@@ -27,7 +24,7 @@ class NOSNLParser(BaseParser):
             self.date = page_last_modified.getText()
 
         self.body = ''
-        for i in article_content.childGenerator():
+        for i in article_content.children:
             if not isinstance(i, Tag):
                 continue
             if not i.name == 'p':

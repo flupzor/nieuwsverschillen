@@ -1,5 +1,5 @@
 from baseparser import BaseParser
-from BeautifulSoup import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag
 
 
 class NuNLParser(BaseParser):
@@ -10,8 +10,7 @@ class NuNLParser(BaseParser):
     feeder_pat  = '^http://www.nu.nl/\w+/\d+/'
 
     def _parse(self, html):
-        soup = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES,
-                             fromEncoding='utf-8')
+        soup = BeautifulSoup(html)
 
         header = soup.find('div', 'header')
 
@@ -30,7 +29,7 @@ class NuNLParser(BaseParser):
 
         article_body = content.find('div', 'main-articlebody')
 
-        for i in article_body.childGenerator():
+        for i in article_body.children:
             if not isinstance(i, Tag):
                 continue
             if not i.name == 'h2' and not i.name == 'p':
