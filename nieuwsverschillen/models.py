@@ -1,13 +1,13 @@
 from django.db import models
 from django.utils import timezone
-
-from json_field import JSONField
-
-from datetime import timedelta
+from django.template.defaultfilters import slugify
 
 from nieuwsverschillen.diff_match_patch import diff_match_patch
-
 from nieuwsverschillen.management.commands.utils import load_parser, parser_by_path
+
+from json_field import JSONField
+from datetime import timedelta
+from urlparse import urlparse
 
 import requests
 
@@ -16,10 +16,18 @@ logger = logging.getLogger(__name__)
 
 class Source(models.Model):
     url = models.CharField(max_length=255, blank=False, unique=True)
+    slug = models.SlugField(blank=False)
     description = models.TextField(blank=True, null=True)
 
     # Which parser should be used for this site.
     parser_path = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        # automatically fill the slug.
+        url_slug = urlparse(self.url).netloc.replace('.', '-')
+        self.slug = slugify(url_slug)
+
+        super(Source, self).save(*args, **kwargs)
 
     @property
     def parser_class(self):
@@ -45,8 +53,16 @@ class Source(models.Model):
         for article in Article.objects.all():
             article.fetch()
 
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+
+        # XXX: for now redirect to article-list.
+        return reverse('article-list', args=[self.slug])
+
 class Article(models.Model):
     source = models.ForeignKey(Source)
+
+    slug = models.SlugField(blank=False)
 
     url = models.CharField(max_length=255, blank=False, unique=True)
 
@@ -59,6 +75,16 @@ class Article(models.Model):
 
     # http
     http_last_modified = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # automatically fill the slug.
+
+        # XXX: the slug is based on a variant of this article. The title,
+        # can vary between variants. So this mightn't be the best
+        # solution.
+        self.slug = slugify(self.article_title)
+
+        super(Article, self).save(*args, **kwargs)
 
     def http_client(self):
         req_headers = {}
@@ -123,7 +149,8 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
-        return reverse('article-detail', args=[str(self.id)])
+        return reverse('article-detail', args=[self.source.slug,
+            self.slug])
 
     def __unicode__(self):
         return self.url
