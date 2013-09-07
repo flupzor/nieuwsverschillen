@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'json_field',
     'django_extensions',
     'bootstrap_toolkit',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging

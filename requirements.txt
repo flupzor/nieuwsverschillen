@@ -3,5 +3,6 @@ requests
 django-json-field
 django-extensions
 beautifulsoup4
+South
 
 -e git+http://github.com/flupzor/django-bootstrap-toolkit.git#egg=django-bootstrap-toolkit
