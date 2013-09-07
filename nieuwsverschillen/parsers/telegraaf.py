@@ -3,8 +3,6 @@ from bs4 import BeautifulSoup, Tag, Comment
 
 
 class TelegraafParser(BaseParser):
-    domains = ['www.telegraaf.nl']
-
     feeder_base = 'http://www.telegraaf.nl'
     feeder_pat  = '^http://www.telegraaf.nl/(overgeld|binnenland|buitenland)/\d+/'
 
@@ -23,8 +21,6 @@ class TelegraafParser(BaseParser):
                 continue
 
             self.title += i.lstrip()
-
-        self.byline = ''
 
         date = article.find('div', 'artDatePostings')
         self.date = date.find('span', 'datum').getText()

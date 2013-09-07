@@ -3,9 +3,6 @@ from bs4 import BeautifulSoup, Tag
 
 
 class NuNLParser(BaseParser):
-    SUFFIX = ''
-    domains = ['www.nu.nl']
-
     feeder_base = 'http://www.nu.nl/'
     feeder_pat  = '^http://www.nu.nl/\w+/\d+/'
 
@@ -16,8 +13,6 @@ class NuNLParser(BaseParser):
 
         self.meta = soup.findAll('meta')
         self.title = header.find('h1').getText()
-
-        self.byline = ''
 
         # Date of the last revision
         self.date = header.find('div', 'dateplace-data').contents[2].lstrip()

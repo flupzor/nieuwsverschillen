@@ -2,8 +2,6 @@ from baseparser import BaseParser
 from bs4 import BeautifulSoup, Tag
 
 class NOSNLParser(BaseParser):
-    domains = ['www.nos.nl']
-
     feeder_base = 'http://www.nos.nl'
     feeder_pat  = '^http://www.nos.nl/artikel/'
 
@@ -16,8 +14,6 @@ class NOSNLParser(BaseParser):
         self.title = article.find('h1').getText()
 
         article_content = soup.find('div', id = 'article-content')
-
-        self.byline = ''
 
         page_last_modified = article_content.find('abbr', 'page-last-modified')
         if page_last_modified:
