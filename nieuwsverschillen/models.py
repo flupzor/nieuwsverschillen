@@ -125,6 +125,8 @@ class Article(models.Model):
 
             return None
 
+        article.last_download_date = timezone.now()
+
         # update the statistics
         article.nr_requests += 1
         article.nr_downloads += 1
@@ -152,6 +154,8 @@ class Article(models.Model):
             article_variant = self.http_client()
             if article_variant:
                 article_variant.parse()
+        else:
+            logger.debug("Skipping article {0}".format(self.url))
 
     @property
     def article_title(self):
@@ -189,7 +193,10 @@ class Article(models.Model):
         if timezone.now() > self.seen_in_overview + timedelta(days=2):
             return False
 
-        # XXX: there should be an lower limit too. E.g. every 5 minutes.
+        # Don't update more than every 3 minutes.
+        if timezone.now() - self.last_download_date < \
+            timedelta(minutes=3):
+            return False
 
         return True
 
