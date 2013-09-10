@@ -83,12 +83,18 @@ class Article(models.Model):
     # statistics
     nr_requests = models.IntegerField(default=0)
     nr_downloads = models.IntegerField(default=0)
-    last_download_date = models.DateTimeField(auto_now_add=True)
 
     seen_in_overview = models.DateTimeField(auto_now_add=True)
 
     # http
     http_last_modified = models.TextField(blank=True, null=True)
+
+    @property
+    def last_download_date(self):
+        try:
+            return self.articlevariant_set.latest('http_download_date').http_download_date
+        except ArticleVariant.DoesNotExist:
+            return None
 
     def save(self, *args, **kwargs):
         # automatically fill the slug.
@@ -124,8 +130,6 @@ class Article(models.Model):
             logger.debug("Not modified")
 
             return None
-
-        article.last_download_date = timezone.now()
 
         # update the statistics
         article.nr_requests += 1
