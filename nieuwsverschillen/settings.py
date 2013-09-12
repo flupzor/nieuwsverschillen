@@ -194,3 +194,4 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     'nieuwsverschillen.context_processors.source_list',
 ]
 
+from settings_local import *
