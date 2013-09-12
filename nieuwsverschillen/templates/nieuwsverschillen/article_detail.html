@@ -10,9 +10,18 @@
   {{ variant.article_content }}
   </p>
   </div>
+  <div>
+  Similarities variants:
+  <ul>
+  {% for similar_variant in variant.similar_versions.all %}
+    <li><a href="{% url "article-diff" %}?r1={{ variant.pk }}&r2={{ similar_variant.pk }}">Compare to {{ variant.pk }}</a></li>
+  {% endfor %}
+  </ul>
+  </div>
 {% endfor %}
 
 {% for variant in cmp_list %}
   <a href="{% url "article-diff" %}?r1={{variant.0.pk}}&r2={{variant.1.pk}}">Diff between {{ variant.0.pk }} and {{ variant.1.pk }}</a>
+
 {% endfor %}
 {% endblock %}

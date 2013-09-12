@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+
 {% block content %}
+<p>
+Comparing <a href="{{ r1.article.url }}">{{ r1.article_title }} ({{r1.article.source }})</a> to <a href="{{ r2.article.url }}">{{ r2.article_title }} ({{ r2.article.source }})</a>
+</p>
+
 {{ diff|safe }}
 {% endblock %}
