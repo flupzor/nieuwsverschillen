@@ -225,6 +225,9 @@ class ArticleVariant(models.Model):
     article_title = models.TextField()
     article_content = models.TextField()
 
+    def __unicode__(self):
+        return "{0}".format(self.pk)
+
     def content_already_exists(self):
         for variant in self.article.articlevariant_set.all():
             if variant != self and self.compare(variant):
