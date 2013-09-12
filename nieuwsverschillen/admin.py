@@ -13,6 +13,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from django.contrib import admin
+from django.db.models import Count
 from nieuwsverschillen.models import Article, ArticleVariant
 
 class ArticleVariantInline(admin.TabularInline):
@@ -21,4 +22,15 @@ class ArticleVariantInline(admin.TabularInline):
 class ArticleAdmin(admin.ModelAdmin):
     inlines = [ArticleVariantInline, ]
 
+class ArticleVariantAdmin(admin.ModelAdmin):
+    list_display = ["article_title", "similar_versions__count"]
+
+    def queryset(self, request):
+        qs = super(ArticleVariantAdmin, self).queryset(request)
+        return qs.annotate(Count('similar_versions'))
+
+    def similar_versions__count(self, obj):
+        return obj.similar_versions__count
+
 admin.site.register(Article, ArticleAdmin)
+admin.site.register(ArticleVariant, ArticleVariantAdmin)
