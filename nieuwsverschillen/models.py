@@ -50,7 +50,7 @@ class Source(models.Model):
     def parser_class(self):
         return parser_by_path(self.parser_path)
 
-    def update_articles(self):
+    def article_list(self):
         parser_class = self.parser_class
 
         # Retrieve the index page.
@@ -59,6 +59,11 @@ class Source(models.Model):
 
         # Extract all the article urls from the index page.
         url_list = parser_class.feed_urls(response.text)
+
+        return url_list
+
+    def update_articles(self):
+        url_list = self.article_list()
 
         for url in url_list:
             logger.debug("Creating a Article object for: {0}".format(url))
@@ -201,8 +206,8 @@ class Article(models.Model):
             return False
 
         # Don't update more than every 3 minutes.
-        if timezone.now() - self.last_download_date < \
-            timedelta(minutes=3):
+        if self.last_download_date and \
+            timezone.now() - self.last_download_date < timedelta(minutes=3):
             return False
 
         return True
