@@ -297,7 +297,6 @@ class ArticleVariant(models.Model):
                 # Anything smaller than 20 characters isn't copied.
                 if len(data) > 20:
                     equalities += len(data)
-                    logger.debug("Similar: " + data)
 
         if equalities > 50:
             return True
