@@ -100,15 +100,15 @@ class Article(models.Model):
     @property
     def last_download_date(self):
         try:
-            return self.articlevariant_set.latest('http_download_date').http_download_date
-        except ArticleVariant.DoesNotExist:
+            return self.articleversion_set.latest('http_download_date').http_download_date
+        except ArticleVersion.DoesNotExist:
             return None
 
     def save(self, *args, **kwargs):
         # automatically fill the slug.
 
-        # XXX: the slug is based on a variant of this article. The title,
-        # can vary between variants. So this mightn't be the best
+        # XXX: the slug is based on a version of this article. The title,
+        # can vary between versions. So this mightn't be the best
         # solution.
         self.slug = slugify(self.article_title)
 
@@ -155,35 +155,35 @@ class Article(models.Model):
             article.save()
             logger.debug("Last modified: \"{0}\"".format(article.http_last_modified))
 
-        article_variant = ArticleVariant(article = article, http_content =
+        article_version = ArticleVersion(article = article, http_content =
             response.text, http_headers = dict(response.headers))
 
-        return article_variant
+        return article_version
 
 
     def fetch(self):
         if self.should_be_updated():
-            article_variant = self.http_client()
-            if article_variant:
-                article_variant.parse()
+            article_version = self.http_client()
+            if article_version:
+                article_version.parse()
         else:
             logger.debug("Skipping article {0}".format(self.url))
 
     @property
     def article_title(self):
-        if self.articlevariant_set.count() == 0:
+        if self.articleversion_set.count() == 0:
             title = "Untitled article: {0}".format(self.pk)
         else:
-            title = self.articlevariant_set.all()[0].article_title
+            title = self.articleversion_set.all()[0].article_title
 
         return title
 
     @property
     def article_content(self):
-        if self.articlevariant_set.count() == 0:
+        if self.articleversion_set.count() == 0:
             return None
 
-        return self.articlevariant_set.all()[0].article_content
+        return self.articleversion_set.all()[0].article_content
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
@@ -212,7 +212,7 @@ class Article(models.Model):
 
         return True
 
-class ArticleVariant(models.Model):
+class ArticleVersion(models.Model):
     """ Model with the raw article data. This data can be used to
     regenerate the other database models when the parsing code gets
     updated """
@@ -234,29 +234,29 @@ class ArticleVariant(models.Model):
         return "{0}".format(self.pk)
 
     def content_already_exists(self):
-        for variant in self.article.articlevariant_set.all():
-            if variant != self and self.compare(variant):
+        for version in self.article.articleversion_set.all():
+            if version != self and self.compare(version):
                 return True
 
         return False
 
-    def compare(self, variant):
-        """ Compare this variant to another. Return True if they are equal.
+    def compare(self, version):
+        """ Compare this version to another. Return True if they are equal.
         False otherwise. """
 
-        if self.article_title != variant.article_title:
+        if self.article_title != version.article_title:
             return False
 
-        if self.article_content != variant.article_content:
+        if self.article_content != version.article_content:
             return False
 
         return True
 
-    def diff(self, variant):
-        """ Create a diff between this variant and another """
+    def diff(self, version):
+        """ Create a diff between this version and another """
 
         dmp = diff_match_patch()
-        diff = dmp.diff_main(self.article_content, variant.article_content)
+        diff = dmp.diff_main(self.article_content, version.article_content)
         dmp.diff_cleanupSemantic(diff)
 
         return diff
@@ -270,7 +270,7 @@ class ArticleVariant(models.Model):
         self.article_content = parser.body
         self.article_title = parser.title
 
-        # Dispose of this article variant if an article variant with the
+        # Dispose of this article version if an article version with the
         # same content already exists.
         if self.content_already_exists():
             if self.pk:

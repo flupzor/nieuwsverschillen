@@ -14,23 +14,23 @@
 
 from django.contrib import admin
 from django.db.models import Count
-from nieuwsverschillen.models import Article, ArticleVariant
+from nieuwsverschillen.models import Article, ArticleVersion
 
-class ArticleVariantInline(admin.TabularInline):
-    model = ArticleVariant
+class ArticleVersionInline(admin.TabularInline):
+    model = ArticleVersion
 
 class ArticleAdmin(admin.ModelAdmin):
-    inlines = [ArticleVariantInline, ]
+    inlines = [ArticleVersionInline, ]
 
-class ArticleVariantAdmin(admin.ModelAdmin):
+class ArticleVersionAdmin(admin.ModelAdmin):
     list_display = ["article_title", "similar_versions__count"]
 
     def queryset(self, request):
-        qs = super(ArticleVariantAdmin, self).queryset(request)
+        qs = super(ArticleVersionAdmin, self).queryset(request)
         return qs.annotate(Count('similar_versions'))
 
     def similar_versions__count(self, obj):
         return obj.similar_versions__count
 
 admin.site.register(Article, ArticleAdmin)
-admin.site.register(ArticleVariant, ArticleVariantAdmin)
+admin.site.register(ArticleVersion, ArticleVersionAdmin)

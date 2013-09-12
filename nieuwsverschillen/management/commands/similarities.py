@@ -17,7 +17,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
 
-from nieuwsverschillen.models import ArticleVariant
+from nieuwsverschillen.models import ArticleVersion
 
 import itertools
 
@@ -27,12 +27,12 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "similarities"
     def handle(self, *args, **options):
-        variants = ArticleVariant.objects.all()
-        variants_count = variants.count()
+        versions = ArticleVersion.objects.all()
+        versions_count = versions.count()
 
-        logger.debug("Number of variants: {0}".format(variants_count))
+        logger.debug("Number of versions: {0}".format(versions_count))
 
-        for v0, v1 in itertools.combinations(variants, 2):
+        for v0, v1 in itertools.combinations(versions, 2):
             # Skip if comparing the same article.
             if v0.article == v1.article:
                 continue

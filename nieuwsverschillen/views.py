@@ -16,7 +16,7 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 
-from nieuwsverschillen.models import Article, ArticleVariant, Source
+from nieuwsverschillen.models import Article, ArticleVersion, Source
 
 from nieuwsverschillen.diff_match_patch import diff_match_patch
 
@@ -29,8 +29,8 @@ class ArticleList(ListView):
         has_variations = self.request.GET.get('has_variations')
         has_similar_items = self.request.GET.get('has_similar_items')
 
-        queryset = manager.annotate(Count('articlevariant'))
-        queryset = queryset.annotate(Count('articlevariant__similar_versions'))
+        queryset = manager.annotate(Count('articleversion'))
+        queryset = queryset.annotate(Count('articleversion__similar_versions'))
 
         # Filter by source, if supplied
         source_slug = self.kwargs.get('source_slug', None)
@@ -42,11 +42,11 @@ class ArticleList(ListView):
 
         # Only show articles with variations.
         if has_variations:
-            queryset = queryset.filter(articlevariant__count__gt = 1)
+            queryset = queryset.filter(articleversion__count__gt = 1)
 
         # Only show articles with similar items.
         if has_similar_items:
-            queryset = queryset.filter(articlevariant__similar_versions__count__gt = 1)
+            queryset = queryset.filter(articleversion__similar_versions__count__gt = 1)
 
         return queryset.all()
 
@@ -70,13 +70,13 @@ class ArticleDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ArticleDetail, self).get_context_data(**kwargs)
 
-        variant_list = context['object'].articlevariant_set.all()
+        version_list = context['object'].articleversion_set.all()
 
         cmp_list = []
-        for i in range(len(variant_list)):
+        for i in range(len(version_list)):
             n = i + 1
-            if n < len(variant_list):
-                cmp_list.append( (variant_list[i], variant_list[n]) )
+            if n < len(version_list):
+                cmp_list.append( (version_list[i], version_list[n]) )
 
         context['cmp_list'] = cmp_list
 
@@ -112,8 +112,8 @@ class DiffView(TemplateView):
         r1 = self.request.GET.get('r1')
         r2 = self.request.GET.get('r2')
 
-        r1_obj = get_object_or_404(ArticleVariant, pk=r1)
-        r2_obj = get_object_or_404(ArticleVariant, pk=r2)
+        r1_obj = get_object_or_404(ArticleVersion, pk=r1)
+        r2_obj = get_object_or_404(ArticleVersion, pk=r2)
 
         context['r1'] = r1_obj
         context['r2'] = r2_obj
@@ -130,7 +130,7 @@ class ArticleParse(DetailView):
 
         obj = context['object']
 
-        for variant in obj.articlevariant_set.all():
-            variant.parse()
+        for version in obj.articleversion_set.all():
+            version.parse()
 
         return context

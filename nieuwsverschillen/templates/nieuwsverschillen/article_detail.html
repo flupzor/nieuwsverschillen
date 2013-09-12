@@ -2,26 +2,26 @@
 
 {% block content %}
 
-{% for variant in object.articlevariant_set.all %}
+{% for version in object.articleversion_set.all %}
   <div>
   <a href="{{ object.url }}">Bron</a>
-  <h1>{{ variant.article_title }}</h1>
+  <h1>{{ version.article_title }}</h1>
   <p>
-  {{ variant.article_content }}
+  {{ version.article_content }}
   </p>
   </div>
   <div>
-  Similarities variants:
+  Similarities versions:
   <ul>
-  {% for similar_variant in variant.similar_versions.all %}
-    <li><a href="{% url "article-diff" %}?r1={{ variant.pk }}&r2={{ similar_variant.pk }}">Compare to {{ variant.pk }}</a></li>
+  {% for similar_version in version.similar_versions.all %}
+    <li><a href="{% url "article-diff" %}?r1={{ version.pk }}&r2={{ similar_version.pk }}">Compare to {{ version.pk }}</a></li>
   {% endfor %}
   </ul>
   </div>
 {% endfor %}
 
-{% for variant in cmp_list %}
-  <a href="{% url "article-diff" %}?r1={{variant.0.pk}}&r2={{variant.1.pk}}">Diff between {{ variant.0.pk }} and {{ variant.1.pk }}</a>
+{% for version in cmp_list %}
+  <a href="{% url "article-diff" %}?r1={{version.0.pk}}&r2={{version.1.pk}}">Diff between {{ version.0.pk }} and {{ version.1.pk }}</a>
 
 {% endfor %}
 {% endblock %}
