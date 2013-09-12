@@ -30,11 +30,14 @@ logger = logging.getLogger(__name__)
 
 class Source(models.Model):
     url = models.CharField(max_length=255, blank=False, unique=True)
-    slug = models.SlugField(blank=False)
+    slug = models.SlugField(blank=False, max_length=255)
     description = models.TextField(blank=True, null=True)
 
     # Which parser should be used for this site.
     parser_path = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.slug
 
     def save(self, *args, **kwargs):
         # automatically fill the slug.
@@ -76,7 +79,7 @@ class Source(models.Model):
 class Article(models.Model):
     source = models.ForeignKey(Source)
 
-    slug = models.SlugField(blank=False)
+    slug = models.SlugField(blank=False, max_length=255)
 
     url = models.CharField(max_length=255, blank=False, unique=True)
 
