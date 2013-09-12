@@ -27,8 +27,10 @@ class ArticleList(ListView):
     def get_queryset(self):
         manager = self.model._default_manager
         has_variations = self.request.GET.get('has_variations')
+        has_similar_items = self.request.GET.get('has_similar_items')
 
         queryset = manager.annotate(Count('articlevariant'))
+        queryset = queryset.annotate(Count('articlevariant__similar_versions'))
 
         # Filter by source, if supplied
         source_slug = self.kwargs.get('source_slug', None)
@@ -41,8 +43,10 @@ class ArticleList(ListView):
         # Only show articles with variations.
         if has_variations:
             queryset = queryset.filter(articlevariant__count__gt = 1)
-        else:
-            queryset = queryset
+
+        # Only show articles with similar items.
+        if has_similar_items:
+            queryset = queryset.filter(articlevariant__similar_versions__count__gt = 1)
 
         return queryset.all()
 
