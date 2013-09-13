@@ -57,23 +57,32 @@ class Source(models.Model):
         response = requests.get(parser_class.feeder_base)
         # XXX: verify content-type etc...
 
+        logger.debug("Received the article overview from: %s".format(self.slug))
+
         # Extract all the article urls from the index page.
         url_list = parser_class.feed_urls(response.text)
 
         return url_list
 
     def update_articles(self):
+        articles_created = 0
+        articles_fetched = 0
+
         url_list = self.article_list()
 
         for url in url_list:
-            logger.debug("Creating a Article object for: {0}".format(url))
+            logger.debug("Found a new article for {0} on: {1}".format(self.slug, url))
             # Look if we've tried to download it before.
             article, created = Article.objects.get_or_create(url = url,
                 source=self)
+            articles_created += 1
 
         # Update all articles which have this source.
         for article in self.article_set.all():
             article.fetch()
+            articles_fetched += 1
+
+        logger.info("{0}: fetched {1} articles of which {2} are new".format(self.slug, articles_fetched, articles_created))
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse

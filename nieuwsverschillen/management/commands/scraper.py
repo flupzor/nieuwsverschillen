@@ -16,10 +16,15 @@ from django.core.management.base import BaseCommand
 
 from nieuwsverschillen.models import Source
 
+import logging
+logger = logging.getLogger("scraper")
+
 
 class Command(BaseCommand):
     help = "Scraper"
 
     def handle(self, *args, **options):
+        logger.info("Starting scraper")
+
         for source in Source.objects.all():
             source.update_articles()
