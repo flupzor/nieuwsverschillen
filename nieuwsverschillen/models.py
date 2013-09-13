@@ -65,7 +65,6 @@ class Source(models.Model):
         return url_list
 
     def update_articles(self):
-        articles_created = 0
         articles_fetched = 0
 
         url_list = self.article_list()
@@ -75,14 +74,13 @@ class Source(models.Model):
             # Look if we've tried to download it before.
             article, created = Article.objects.get_or_create(url = url,
                 source=self)
-            articles_created += 1
 
         # Update all articles which have this source.
         for article in self.article_set.all():
             article.fetch()
             articles_fetched += 1
 
-        logger.info("{0}: fetched {1} articles of which {2} are new".format(self.slug, articles_fetched, articles_created))
+        logger.info("{0}: fetched {1} articles".format(self.slug, articles_fetched))
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
