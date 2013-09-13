@@ -49,4 +49,4 @@ class BaseParser(object):
         domain = '/'.join(cls.feeder_base.split('/')[:3])
         urls = [url if '://' in url else domain + url for url in urls]
 
-        return [url for url in urls if re.search(cls.feeder_pat, url)]
+        return set([url for url in urls if re.search(cls.feeder_pat, url)])
