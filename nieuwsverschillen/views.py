@@ -70,7 +70,7 @@ class ArticleDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ArticleDetail, self).get_context_data(**kwargs)
 
-        version_list = context['object'].articleversion_set.all()
+        version_list = context['object'].articleversion_set.order_by('http_download_date').all()
 
         cmp_list = []
         for i in range(len(version_list)):
