@@ -77,8 +77,9 @@ class Source(models.Model):
 
         # Update all articles which have this source.
         for article in self.article_set.all():
-            article.fetch()
-            articles_fetched += 1
+            article_version = article.fetch_and_parse()
+            if article_version:
+                articles_fetched += 1
 
         logger.info("{0}: fetched {1} articles".format(self.slug, articles_fetched))
 
@@ -121,7 +122,7 @@ class Article(models.Model):
 
         super(Article, self).save(*args, **kwargs)
 
-    def http_client(self):
+    def fetch_new_version(self):
         req_headers = {}
 
         article = self
@@ -146,6 +147,9 @@ class Article(models.Model):
 
             return None
 
+        if response.status_code != requests.codes.ok:
+            return None
+
         # update the statistics
         article.nr_requests += 1
         article.nr_downloads += 1
@@ -168,13 +172,14 @@ class Article(models.Model):
         return article_version
 
 
-    def fetch(self):
+    def fetch_and_parse(self):
         if self.should_be_updated():
-            article_version = self.http_client()
+            article_version = self.fetch_new_version()
             if article_version:
                 article_version.parse()
-        else:
-            logger.debug("Skipping article {0}".format(self.url))
+                return article_version
+
+        return None
 
     @property
     def article_title(self):
