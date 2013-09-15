@@ -294,6 +294,54 @@ class ArticleVersion(models.Model):
 
         self.save()
 
+    def is_somewhat_equal_to(self, other):
+        v0 = set(self.article_content.split())
+        v1 = set(other.article_content.split())
+
+        min_length = min(len(v0), len(v1))
+
+        # Can't divide by zero
+        if min_length == 0:
+            return False
+
+        words_equal = 0
+        for word in v0:
+            if word in v1:
+                words_equal += 1
+
+        if float(words_equal) / float(min_length) > 0.40:
+            return True
+
+        return False
+
+    def check_for_similarities(self, other):
+        """ A check wheter the similarities test should be run for this
+        ArticleVersion """
+
+        # XXX: obj1.check_for_similarities(obj2) should be the same as
+        # obj2.check_for_similarities(obj1). Probably should be added as a
+        # regression test.
+
+        if not self.is_somewhat_equal_to(other):
+            return False
+
+        # Skip if comparing the same article.
+        if self.article == other.article:
+            return False
+
+        # Skip articles on the same site
+        if self.article.source == other.article.source:
+            return False
+
+        # Check if the article versions where released in roughly the same
+        # timeframe. XXX: This should be the release date of the article
+        # version, however, currently the parser for that is missing.
+        time_delta = abs(self.http_download_date - other.http_download_date)
+        if time_delta.days < 1:
+            return True
+
+        return False
+
     def is_similar(self, new):
         """ Test if the current article version is similar to the given
         article version """

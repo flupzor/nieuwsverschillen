@@ -16,6 +16,7 @@ from django.core.management.base import BaseCommand
 
 from django.conf import settings
 from django.utils import timezone
+from django import db
 
 from nieuwsverschillen.models import ArticleVersion
 
@@ -32,13 +33,16 @@ class Command(BaseCommand):
 
         logger.debug("Number of versions: {0}".format(versions_count))
 
+        nr_tests = 0
         for v0, v1 in itertools.combinations(versions, 2):
-            # Skip if comparing the same article.
-            if v0.article == v1.article:
+            if not v0.check_for_similarities(v1):
                 continue
+            nr_tests += 1
 
-            # Skip articles on the same site
-            if v0.article.source == v1.article.source:
+        logger.debug("Number of tests: {0}".format(nr_tests))
+
+        for v0, v1 in itertools.combinations(versions, 2):
+            if not v0.check_for_similarities(v1):
                 continue
 
             start_time = timezone.now()
@@ -54,3 +58,6 @@ class Command(BaseCommand):
 
                 v0.similar_versions.add(v1)
                 v0.save()
+
+            # Clear the list of SQL queries Django keeps.
+            db.reset_queries()
