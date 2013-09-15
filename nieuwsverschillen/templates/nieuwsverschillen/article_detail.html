@@ -2,7 +2,16 @@
 
 {% block content %}
 
-{% for version in object.articleversion_set.all %}
+  <div>
+  Similarities versions:
+  <ul>
+  {% for similar_article in object.similar_articles.all %}
+    <li><a href="{% url "article-diff" %}?r1={{ object.latest_version.pk }}&r2={{ similar_article.latest_version.pk }}">Compare to {{ similar_article.article_title }} ({{ similar_article.source }})</a></li>
+  {% endfor %}
+  </ul>
+  </div>
+
+{% with object.latest_version as version %}
   <div>
   <a href="{{ object.url }}">Bron</a>
   <h1>{{ version.article_title }}</h1>
@@ -10,15 +19,7 @@
   {{ version.article_content }}
   </p>
   </div>
-  <div>
-  Similarities versions:
-  <ul>
-  {% for similar_version in version.similar_versions.all %}
-    <li><a href="{% url "article-diff" %}?r1={{ version.pk }}&r2={{ similar_version.pk }}">Compare to {{ version.pk }}</a></li>
-  {% endfor %}
-  </ul>
-  </div>
-{% endfor %}
+{% endwith %}
 
 {% for version in cmp_list %}
   <a href="{% url "article-diff" %}?r1={{version.0.pk}}&r2={{version.1.pk}}">Diff between {{ version.0.pk }} and {{ version.1.pk }}</a>

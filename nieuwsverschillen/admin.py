@@ -22,15 +22,18 @@ class ArticleVersionInline(admin.TabularInline):
 class ArticleAdmin(admin.ModelAdmin):
     inlines = [ArticleVersionInline, ]
 
-class ArticleVersionAdmin(admin.ModelAdmin):
-    list_display = ["article_title", "similar_versions__count"]
+    list_display = ["url", "similar_articles__count"]
 
     def queryset(self, request):
         qs = super(ArticleVersionAdmin, self).queryset(request)
-        return qs.annotate(Count('similar_versions'))
+        return qs.annotate(Count('similar_articles'))
 
-    def similar_versions__count(self, obj):
-        return obj.similar_versions__count
+    def similar_articles__count(self, obj):
+        return obj.similar_articles__count
+
+class ArticleVersionAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(ArticleVersion, ArticleVersionAdmin)

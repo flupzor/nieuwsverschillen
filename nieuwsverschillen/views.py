@@ -30,7 +30,7 @@ class ArticleList(ListView):
         has_similar_items = self.request.GET.get('has_similar_items')
 
         queryset = manager.annotate(Count('articleversion'))
-        queryset = queryset.annotate(Count('articleversion__similar_versions'))
+        queryset = queryset.annotate(Count('similar_articles'))
 
         # Filter by source, if supplied
         source_slug = self.kwargs.get('source_slug', None)
@@ -46,7 +46,7 @@ class ArticleList(ListView):
 
         # Only show articles with similar items.
         if has_similar_items:
-            queryset = queryset.filter(articleversion__similar_versions__count__gt = 1)
+            queryset = queryset.filter(similar_articles__count__gt = 1)
 
         return queryset.all()
 

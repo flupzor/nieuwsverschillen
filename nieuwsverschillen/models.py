@@ -92,6 +92,8 @@ class Source(models.Model):
 class Article(models.Model):
     source = models.ForeignKey(Source)
 
+    similar_articles = models.ManyToManyField("self")
+
     slug = models.SlugField(blank=False, max_length=255)
 
     url = models.CharField(max_length=255, blank=False, unique=True)
@@ -106,7 +108,13 @@ class Article(models.Model):
     http_last_modified = models.TextField(blank=True, null=True)
 
     @property
+    def latest_version(self):
+        return self.articleversion_set.latest()
+
+    @property
     def last_download_date(self):
+        """ The last date an article version has been fetched """
+
         try:
             return self.articleversion_set.latest('http_download_date').http_download_date
         except ArticleVersion.DoesNotExist:
@@ -231,8 +239,6 @@ class ArticleVersion(models.Model):
 
     article = models.ForeignKey(Article)
 
-    similar_versions = models.ManyToManyField("self")
-
     # HTTP data which shouldn't be modified after they're created.
     http_download_date = models.DateTimeField(auto_now_add=True)
     http_content = models.TextField()
@@ -241,6 +247,11 @@ class ArticleVersion(models.Model):
     # The article which is parsed from the HTTP data.
     article_title = models.TextField()
     article_content = models.TextField()
+
+    class Meta:
+        # XXX: This should be changed to the date parsed from the article
+        # whenever that part of the parser is written.
+        get_latest_by = 'http_download_date'
 
     def __unicode__(self):
         return "{0}".format(self.pk)

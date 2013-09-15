@@ -56,8 +56,8 @@ class Command(BaseCommand):
             if is_similar:
                 logger.debug("Found a similar version %d, %d", v0.pk, v1.pk)
 
-                v0.similar_versions.add(v1)
-                v0.save()
+                v0.article.similar_articles.add(v1.article)
+                v0.article.save()
 
             # Clear the list of SQL queries Django keeps.
             db.reset_queries()
